@@ -438,32 +438,11 @@ body {
 .battle-divider {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 7px 28px;
-  background: rgba(0,0,0,0.5);
-  border-top:    1px solid rgba(200,162,40,0.15);
-  border-bottom: 1px solid rgba(200,162,40,0.15);
+  justify-content: center;
+  padding: 4px 0;
+  background: transparent;
   flex-shrink: 0;
   position: relative; z-index: 2;
-}
-
-.battle-divider::before {
-  content: '';
-  position: absolute; inset: 0;
-  background: radial-gradient(ellipse 50% 200% at 50% 50%,
-    rgba(200,162,40,0.06), transparent 70%);
-  pointer-events: none;
-}
-
-.center-rune {
-  position: absolute;
-  left: 50%; top: 50%;
-  transform: translate(-50%, -50%);
-  font-size: 20px;
-  color: rgba(200,162,40,0.2);
-  pointer-events: none;
-  z-index: 0;
-  animation: runeGlow 5s ease-in-out infinite;
 }
 
 #turnInfo {
