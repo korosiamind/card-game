@@ -1,0 +1,6 @@
+meta:
+  environment: nodejs
+  toolVersion: "20"
+
+run:
+  command: node server.js
