@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Карточная Битва</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ══ РЕДАКТОР КОЛОДЫ ════════════════════════════════════════ -->
+<div id="deckEditor" class="hidden">
+  <div class="de-inner">
+
+    <div class="de-header">
+      <div class="de-title">⚔ Сборка колоды</div>
+      <div class="de-subtitle" id="dePlayerName">Игрок 1</div>
+    </div>
+
+    <!-- Progress bar -->
+    <div class="de-progress">
+      <div class="de-prog-step" id="progStep1">
+        <div class="de-prog-dot">1</div>
+        <div class="de-prog-label">Фракции</div>
+      </div>
+      <div class="de-prog-line" id="progLine12"></div>
+      <div class="de-prog-step" id="progStep2">
+        <div class="de-prog-dot">2</div>
+        <div class="de-prog-label">Герои</div>
+      </div>
+      <div class="de-prog-line" id="progLine23"></div>
+      <div class="de-prog-step" id="progStep3">
+        <div class="de-prog-dot">3</div>
+        <div class="de-prog-label">Заклинания</div>
+      </div>
+    </div>
+
+    <!-- Step 1: Factions / Presets -->
+    <div id="deStepSchool">
+      <div class="de-mode-row">
+        <button class="de-mode-btn active" id="deModeManual" onclick="selectDeckMode('manual')">✏️ Вручную</button>
+        <button class="de-mode-btn" id="deModePreset" onclick="selectDeckMode('preset')">📋 Готовые колоды</button>
+      </div>
+      <div id="deSchoolArea">
+        <div class="de-step-hint">Выберите 2 фракции для вашей колоды</div>
+        <div class="de-school-cards" id="deSchoolCards"></div>
+      </div>
+      <div id="dePresetArea" class="hidden">
+        <div class="de-step-hint">Выберите готовую колоду</div>
+        <div class="de-preset-grid" id="dePresetGrid"></div>
+      </div>
+    </div>
+
+    <!-- Step 2: Heroes -->
+    <div id="deStepHero" class="hidden">
+      <div class="de-step-hint">Выберите 3 героев <span class="de-count-badge" id="deHeroBadge">0/3</span></div>
+      <div class="de-pick-grid" id="deHeroGrid"></div>
+      <div class="de-step-footer">
+        <button class="de-back-btn" onclick="goBackToSchoolStep()">← Фракции</button>
+        <button class="de-next-btn" id="deHeroNextBtn" onclick="goToSpellStep()" disabled>Заклинания →</button>
+      </div>
+    </div>
+
+    <!-- Step 3: Spells -->
+    <div id="deStepSpell" class="hidden">
+      <div class="de-step-hint">Добавьте заклинания <span class="de-count-badge" id="deSpellBadge">0/17</span></div>
+      <div class="de-pick-grid" id="deSpellGrid"></div>
+      <div class="de-step-footer">
+        <button class="de-back-btn" onclick="goBackToHeroStep()">← Герои</button>
+        <button class="de-confirm-btn" id="deConfirmBtn" onclick="confirmDeck()" disabled>Подтвердить →</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══ ЭКРАН ВЫБОРА РЕЖИМА ═══════════════════════════════════ -->
+<div id="startScreen">
+  <div class="start-box">
+
+    <div class="start-schools-grid">
+      <div class="start-school-item">
+        <img src="Свет.png" alt="Свет">
+        <span>Свет</span>
+      </div>
+      <div class="start-school-item">
+        <img src="Порядок.png" alt="Порядок">
+        <span>Порядок</span>
+      </div>
+      <div class="start-school-item">
+        <img src="Тьма.png" alt="Тьма">
+        <span>Тьма</span>
+      </div>
+      <div class="start-school-item">
+        <img src="Хаос.png" alt="Хаос">
+        <span>Хаос</span>
+      </div>
+    </div>
+
+    <div class="start-title">Карточная Битва</div>
+    <div class="start-sub">Соберите колоду. Призовите героев. Победите.</div>
+
+    <div class="mode-row">
+      <button class="mode-btn" id="modePvp" onclick="selectMode('pvp')">
+        <span class="mode-icon">👥</span>
+        <span class="mode-label">Игрок vs Игрок</span>
+        <span class="mode-sub">Hot-seat на одном устройстве</span>
+      </button>
+      <button class="mode-btn" id="modePve" onclick="selectMode('pve')">
+        <span class="mode-icon">🤖</span>
+        <span class="mode-label">Против компьютера</span>
+        <span class="mode-sub">Испытай себя против ИИ</span>
+      </button>
+      <button class="mode-btn" id="modeOnline" onclick="selectMode('online')">
+        <span class="mode-icon">🌐</span>
+        <span class="mode-label">Онлайн</span>
+        <span class="mode-sub">Игра через локальную сеть</span>
+      </button>
+    </div>
+
+    <div id="diffRow" class="diff-row hidden">
+      <div class="diff-title">Сложность</div>
+      <div class="diff-btns">
+        <button class="diff-btn" id="diffEasy"   onclick="selectDiff('easy')">😴 Лёгкая</button>
+        <button class="diff-btn" id="diffMedium" onclick="selectDiff('medium')">⚔ Средняя</button>
+        <button class="diff-btn" id="diffHard"   onclick="selectDiff('hard')">💀 Сложная</button>
+      </div>
+    </div>
+
+    <div id="onlineRow" class="online-row hidden">
+      <button class="online-btn" onclick="startOnlineHost()">🏠 Создать комнату</button>
+      <button class="online-btn" onclick="showJoinInput()">🚪 Войти в комнату</button>
+    </div>
+
+    <div id="joinRow" class="join-row hidden">
+      <input id="joinCodeInput" class="join-code-input" maxlength="4" placeholder="Код комнаты" oninput="this.value=this.value.replace(/\D/g,'')">
+      <button class="online-btn" onclick="startOnlineGuest()">Подключиться</button>
+    </div>
+
+    <button id="startBtn" class="start-btn hidden" onclick="startGame()">▶ Начать игру</button>
+  </div>
+</div>
+
+<!-- ══ ЭКРАН ОЖИДАНИЯ ОНЛАЙН ═══════════════════════════════ -->
+<div id="waitingScreen" class="hidden">
+  <div class="waiting-box">
+    <div class="waiting-title" id="waitingTitle">Ожидание...</div>
+    <div class="waiting-code hidden" id="waitingCodeBlock">
+      Код комнаты: <span class="room-code" id="roomCodeDisplay"></span>
+      <div class="waiting-hint">Передайте этот код второму игроку</div>
+    </div>
+    <div class="waiting-spinner">⏳</div>
+    <div class="waiting-status" id="waitingStatus"></div>
+    <button class="waiting-cancel" onclick="cancelOnline()">Отмена</button>
+  </div>
+</div>
+
+<div id="game">
+
+  <!-- ══ БОКОВАЯ ПАНЕЛЬ ГЕРОЕВ ══════════════════════════════ -->
+  <div class="hero-sidebar">
+
+    <div class="hs-panel" id="hs-enemy">
+      <div class="hs-label">Противник</div>
+      <div class="hero-token" id="p2Hero" onclick="handleHeroClick(1)">
+        <div class="token-art">⚔️</div>
+      </div>
+      <div class="hs-hp-row">
+        <span class="hs-hp-icon">❤️</span>
+        <span id="p2Hp">30</span>
+        <span class="hs-hp-max" id="p2HpMax">/30</span>
+      </div>
+      <div class="hs-hp-bar-wrap"><div class="hs-hp-bar" id="p2HpBar"></div></div>
+      <div class="sub-row shield hidden" id="p2Shield">🛡️ <span id="p2ShieldVal">0</span></div>
+      <div class="sub-row mana" id="p2Mana">💎 0/0</div>
+      <div class="sub-row deck" id="p2Deck">📚 25</div>
+      <div class="curses-col" id="p2Curses"></div>
+      <div class="hero-hp-badge hidden" id="p2HpBadge"><span>0</span></div>
+      <div class="hs-hero-hand" id="p2HeroHand"></div>
+    </div>
+
+    <div class="hs-panel" id="hs-own">
+      <div class="hs-label">Вы</div>
+      <div class="hero-token" id="p1Hero" onclick="handleHeroClick(0)">
+        <div class="token-art">🧙</div>
+      </div>
+      <div class="hs-hp-row">
+        <span class="hs-hp-icon">❤️</span>
+        <span id="p1Hp">30</span>
+        <span class="hs-hp-max" id="p1HpMax">/30</span>
+      </div>
+      <div class="hs-hp-bar-wrap"><div class="hs-hp-bar" id="p1HpBar"></div></div>
+      <div class="sub-row shield hidden" id="p1Shield">🛡️ <span id="p1ShieldVal">0</span></div>
+      <div class="sub-row mana" id="p1Mana">💎 3/3</div>
+      <div class="sub-row deck" id="p1Deck">📚 25</div>
+      <div class="curses-col" id="p1Curses"></div>
+      <div class="hero-hp-badge hidden" id="p1HpBadge"><span>0</span></div>
+      <div class="hs-hero-hand" id="p1HeroHand"></div>
+    </div>
+
+  </div>
+
+  <!-- ══ РУКА ИГРОКА 2 (верх) ══════════════════════════════ -->
+  <div class="hand-strip opp">
+    <div class="hand" id="p2Hand"></div>
+  </div>
+
+  <!-- ══ ПОЛЕ БОЯ ══════════════════════════════════════════ -->
+  <div id="battlefield">
+
+    <div class="battle-row row-top">
+      <div class="field" id="p2Field"></div>
+    </div>
+
+    <div class="battle-divider">
+      <span id="turnInfo">Ход 1 — Игрок 1</span>
+      <div class="center-rune" aria-hidden="true">✦</div>
+      <button id="endTurnBtn" onclick="endTurn()">⚔ Завершить ход</button>
+    </div>
+
+    <div class="battle-row row-bottom">
+      <div class="field" id="p1Field"></div>
+    </div>
+
+  </div><!-- /battlefield -->
+
+  <!-- ══ РУКА ИГРОКА 1 (низ) ═══════════════════════════════ -->
+  <div class="hand-strip own">
+    <div class="hand" id="p1Hand"></div>
+  </div>
+
+  <!-- Статус -->
+  <div id="statusMsg" style="display:none"></div>
+
+</div><!-- /game -->
+
+<!-- Конец игры -->
+<div id="gameOver" class="hidden">
+  <div class="gameover-box">
+    <div class="gameover-crown">👑</div>
+    <div id="winnerText"></div>
+    <div class="gameover-btns">
+      <button onclick="restartGame()">🔄 Новая игра</button>
+      <button class="btn-ghost" onclick="showStartScreen()">⚙ Сменить режим</button>
+    </div>
+  </div>
+</div>
+
+<script src="cards.js"></script>
+<script src="game.js"></script>
+</body>
+</html>
